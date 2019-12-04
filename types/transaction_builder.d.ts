@@ -18,7 +18,7 @@ export declare class TransactionBuilder {
     private __INPUTS;
     private __TX;
     private __USE_LOW_R;
-    constructor(network?: Network, maximumFeeRate?: number);
+    constructor(network?: Network, enableBitcoinCash?: boolean, maximumFeeRate?: number);
     setLowR(setting?: boolean): boolean;
     setLockTime(locktime: number): void;
     setVersion(version: number): void;
