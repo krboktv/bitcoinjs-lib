@@ -133,6 +133,7 @@ export class TransactionBuilder {
   private __PREV_TX_SET: { [index: string]: boolean };
   private __INPUTS: TxbInput[];
   private __TX: Transaction;
+  private __bitcoinCash: boolean;
   private __USE_LOW_R: boolean;
 
   // WARNING: maximumFeeRate is __NOT__ to be relied on,
@@ -144,6 +145,7 @@ export class TransactionBuilder {
     this.__PREV_TX_SET = {};
     this.__INPUTS = [];
     this.__TX = new Transaction();
+    this.__bitcoinCash = false;
     this.__TX.version = 2;
     this.__USE_LOW_R = false;
     console.warn(
@@ -153,6 +155,14 @@ export class TransactionBuilder {
         'Github. A high level explanation is available in the psbt.ts and psbt.js ' +
         'files as well.',
     );
+  }
+
+  enableBitcoinCash(enable: boolean) {
+    if (typeof enable === 'undefined') {
+      enable = true
+    }
+
+    this.__bitcoinCash = enable
   }
 
   setLowR(setting?: boolean): boolean {
@@ -256,6 +266,7 @@ export class TransactionBuilder {
         this.__INPUTS,
         this.__needsOutputs.bind(this),
         this.__TX,
+        this.__bitcoinCash,
         signParams,
         keyPair,
         redeemScript,
@@ -1213,6 +1224,7 @@ function getSigningData(
   inputs: TxbInput[],
   needsOutputs: HashTypeCheck,
   tx: Transaction,
+  isBitcoinCash: boolean,
   signParams: number | TxbSignArg,
   keyPair?: Signer,
   redeemScript?: Buffer,
@@ -1292,19 +1304,23 @@ function getSigningData(
 
   // ready to sign
   let signatureHash: Buffer;
-  if (input.hasWitness) {
-    signatureHash = tx.hashForWitnessV0(
-      vin,
-      input.signScript as Buffer,
-      input.value as number,
-      hashType,
-    );
+  if (isBitcoinCash) {
+    signatureHash = tx.hashForCashSignature(vin, input.signScript, input.value, hashType)
   } else {
-    signatureHash = tx.hashForSignature(
-      vin,
-      input.signScript as Buffer,
-      hashType,
-    );
+    if (input.hasWitness) {
+      signatureHash = tx.hashForWitnessV0(
+        vin,
+        input.signScript as Buffer,
+        input.value as number,
+        hashType,
+      );
+    } else {
+      signatureHash = tx.hashForSignature(
+        vin,
+        input.signScript as Buffer,
+        hashType,
+      );
+    }
   }
 
   return {
