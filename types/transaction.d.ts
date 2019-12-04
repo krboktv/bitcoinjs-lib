@@ -41,6 +41,7 @@ export declare class Transaction {
      * This hash can then be used to sign the provided transaction input.
      */
     hashForSignature(inIndex: number, prevOutScript: Buffer, hashType: number): Buffer;
+    hashForCashSignature(inIndex: number, prevOutScript: Buffer, inAmount: number, hashType: number): Buffer;
     hashForWitnessV0(inIndex: number, prevOutScript: Buffer, value: number, hashType: number): Buffer;
     getHash(forWitness?: boolean): Buffer;
     getId(): string;
