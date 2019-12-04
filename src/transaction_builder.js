@@ -49,12 +49,13 @@ function txIsTransaction(tx) {
 class TransactionBuilder {
   // WARNING: maximumFeeRate is __NOT__ to be relied on,
   //          it's just another potential safety mechanism (safety in-depth)
-  constructor(network = networks.bitcoin, maximumFeeRate = 2500) {
+  constructor(network = networks.bitcoin, enableBitcoinCash = false, maximumFeeRate = 2500) {
     this.network = network;
     this.maximumFeeRate = maximumFeeRate;
     this.__PREV_TX_SET = {};
     this.__INPUTS = [];
     this.__TX = new transaction_1.Transaction();
+    this.__bitcoinCash = enableBitcoinCash
     this.__TX.version = 2;
     this.__USE_LOW_R = false;
     console.warn(
@@ -165,6 +166,7 @@ class TransactionBuilder {
         this.network,
         this.__INPUTS,
         this.__needsOutputs.bind(this),
+        this.__bitcoinCash,
         this.__TX,
         signParams,
         keyPair,
@@ -973,6 +975,7 @@ function getSigningData(
   inputs,
   needsOutputs,
   tx,
+  enableBitcoinCash,
   signParams,
   keyPair,
   redeemScript,
@@ -1044,16 +1047,21 @@ function getSigningData(
   }
   // ready to sign
   let signatureHash;
-  if (input.hasWitness) {
-    signatureHash = tx.hashForWitnessV0(
-      vin,
-      input.signScript,
-      input.value,
-      hashType,
-    );
+  if (enableBitcoinCash) {
+    signatureHash = tx.hashForCashSignature(vin, input.signScript, input.value, hashType)
   } else {
-    signatureHash = tx.hashForSignature(vin, input.signScript, hashType);
+    if (input.hasWitness) {
+      signatureHash = tx.hashForWitnessV0(
+        vin,
+        input.signScript,
+        input.value,
+        hashType,
+      );
+    } else {
+      signatureHash = tx.hashForSignature(vin, input.signScript, hashType);
+    }
   }
+
   return {
     input,
     ourPubKey,
