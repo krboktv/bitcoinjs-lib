@@ -101,6 +101,7 @@ export class TransactionBuilder {
   static fromTransaction(
     transaction: Transaction,
     network?: Network,
+    enableBitcoinCash?: boolean
   ): TransactionBuilder {
     const txb = new TransactionBuilder(network);
 
@@ -126,6 +127,10 @@ export class TransactionBuilder {
     txb.__INPUTS.forEach((input, i) => {
       fixMultisigOrder(input, transaction, i);
     });
+
+    if (enableBitcoinCash) {
+      txb.enableBitcoinCash(enableBitcoinCash);
+    }
 
     return txb;
   }
