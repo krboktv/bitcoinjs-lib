@@ -367,7 +367,7 @@ class Transaction {
    * Hash transaction for signing a specific input for Bitcoin Cash.
    */
   hashForCashSignature(inIndex, prevOutScript, inAmount, hashType) {
-    typeforce(types.tuple(types.UInt32, types.Buffer, /* types.UInt8 */ types.Number, types.maybe(types.UInt53)), arguments)
+    typeforce(types.tuple(types.UInt32, types.Buffer, /* types.UInt8 */ types.Number, types.maybe(types.UInt32)), arguments)
 
     // This function works the way it does because Bitcoin Cash
     // uses BIP143 as their replay protection, AND their algo
