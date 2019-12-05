@@ -8,6 +8,19 @@ A javascript Bitcoin library for node.js and browsers. Written in TypeScript, bu
 
 Released under the terms of the [MIT LICENSE](LICENSE).
 
+## Bitcoin Cash Support
+Usage:
+```
+const txb = new TransactionBuilder(BitcoinCashConfig, true);
+txb.setVersion(1);
+tx.addInput(txid, vout, confirmations, new Buffer(scriptPubKey, 'hex'));
+
+tx.addOutput(toAddress, amount);
+tx.addOutput(fromAddress, balanceWithoutFeeAndSendingAmount);
+
+tx.sign(0, keyPair, null, Transaction.SIGHASH_ALL | Transaction.SIGHASH_BITCOINCASHBIP143, input.satoshis);
+```
+
 ## Should I use this in production?
 If you are thinking of using the *master* branch of this library in production, **stop**.
 Master is not stable; it is our development branch, and [only tagged releases may be classified as stable](https://github.com/bitcoinjs/bitcoinjs-lib/tags).
